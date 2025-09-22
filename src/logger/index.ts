@@ -10,9 +10,10 @@ export class MongoDBLogger implements Logger {
 
   constructor(options: LogOptions) {
     this.options = {
-      mongoUri: options.mongoUri,
+      mongoUri: options.mongoUri || 'mongodb://localhost:27017',
       dbName: options.dbName || 'logs',
       collectionName: options.collectionName || 'application_logs',
+      saveToDb: options.saveToDb !== false,
       level: options.level || 'info',
       format: options.format || 'text',
       timestamp: options.timestamp !== false,
@@ -27,20 +28,24 @@ export class MongoDBLogger implements Logger {
       retryDelay: options.retryDelay || 1000
     };
 
-    this.mongoLogger = new MongoLogger(
-      this.options.mongoUri,
-      this.options.dbName,
-      this.options.collectionName,
-      this.options.maxRetries,
-      this.options.retryDelay
-    );
+    // Only create MongoDB logger if saveToDb is enabled
+    if (this.options.saveToDb) {
+      this.mongoLogger = new MongoLogger(
+        this.options.mongoUri,
+        this.options.dbName,
+        this.options.collectionName,
+        this.options.maxRetries,
+        this.options.retryDelay
+      );
+    }
   }
 
   async initialize(): Promise<void> {
     if (this.isInitialized) return;
     
     try {
-      if (this.mongoLogger) {
+      // Only initialize MongoDB connection if saveToDb is enabled
+      if (this.options.saveToDb && this.mongoLogger) {
         await this.mongoLogger.connect();
       }
       this.isInitialized = true;
@@ -53,17 +58,19 @@ export class MongoDBLogger implements Logger {
   async log(entry: LogEntry): Promise<void> {
     await this.ensureInitialized();
 
-    // Log to console
+    // Always log to console
     this.logToConsole(entry);
 
-    // Save to MongoDB
-    try {
-      if (this.mongoLogger) {
-        await this.mongoLogger.saveLog(entry);
+    // Save to MongoDB only if saveToDb is enabled
+    if (this.options.saveToDb) {
+      try {
+        if (this.mongoLogger) {
+          await this.mongoLogger.saveLog(entry);
+        }
+      } catch (error) {
+        console.error('Failed to save log to MongoDB:', error);
+        // Don't throw here to prevent application crashes due to logging failures
       }
-    } catch (error) {
-      console.error('Failed to save log to MongoDB:', error);
-      // Don't throw here to prevent application crashes due to logging failures
     }
   }
 
@@ -122,6 +129,10 @@ export class MongoDBLogger implements Logger {
   ): Promise<any[]> {
     await this.ensureInitialized();
     
+    if (!this.options.saveToDb) {
+      throw new Error('Database logging is disabled. Cannot retrieve logs from database.');
+    }
+    
     if (!this.mongoLogger) {
       throw new Error('MongoDB logger not initialized');
     }
@@ -130,13 +141,16 @@ export class MongoDBLogger implements Logger {
   }
 
   async close(): Promise<void> {
-    if (this.mongoLogger) {
+    if (this.options.saveToDb && this.mongoLogger) {
       await this.mongoLogger.close();
     }
     this.isInitialized = false;
   }
 
   isConnected(): boolean {
+    if (!this.options.saveToDb) {
+      return true; // Always "connected" if not using database
+    }
     return this.mongoLogger ? this.mongoLogger.isConnected() : false;
   }
 

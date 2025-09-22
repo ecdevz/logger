@@ -27,6 +27,7 @@ describe('MongoDBLogger', () => {
       const customLogger = createLogger({
         mongoUri: 'mongodb://localhost:27017',
         dbName: 'custom_db',
+        saveToDb: false,
         collectionName: 'custom_collection',
         level: 'warn',
         format: 'json',

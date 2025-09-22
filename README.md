@@ -48,6 +48,7 @@ interface LogOptions {
   mongoUri: string;                    // MongoDB connection URI
   dbName: string;                      // Database name
   collectionName: string;              // Collection name for logs
+  saveToDb?: boolean;                  // Enable/disable database logging (default: true)
   level?: 'info' | 'warn' | 'error' | 'debug';  // Minimum log level (default: 'info')
   format?: 'json' | 'text';            // Output format (default: 'text')
   timestamp?: boolean;                 // Include timestamps (default: true)
@@ -59,6 +60,46 @@ interface LogOptions {
 ```
 
 ## Advanced Usage
+
+### Console-Only Logging (No Database)
+
+```typescript
+import { createLogger } from '@sky7/logger';
+
+// Logger without database - only console output
+const consoleLogger = createLogger({
+  mongoUri: 'mongodb://localhost:27017', // Still required but not used
+  dbName: 'myapp',
+  collectionName: 'logs',
+  saveToDb: false,  // Disable database logging
+  colorize: true,
+  format: 'text'
+});
+
+await consoleLogger.initialize(); // No database connection made
+await consoleLogger.info('This only goes to console');
+```
+
+### Database + Console Logging (Default)
+
+```typescript
+import { createLogger } from '@sky7/logger';
+
+// Logger with database - saves to MongoDB and console
+const dbLogger = createLogger({
+  mongoUri: 'mongodb://localhost:27017',
+  dbName: 'myapp',
+  collectionName: 'logs',
+  saveToDb: true,  // Enable database logging (this is the default)
+  colorize: true
+});
+
+await dbLogger.initialize(); // Connects to MongoDB
+await dbLogger.info('This goes to both console and database');
+
+// Retrieve logs from database
+const logs = await dbLogger.getLogs({}, 10, 0);
+```
 
 ### Using Default Logger
 

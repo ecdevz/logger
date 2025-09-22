@@ -1,7 +1,8 @@
 export interface LogOptions {
-    mongoUri: string;
-    dbName: string;
-    collectionName: string;
+    mongoUri?: string;
+    dbName?: string;
+    collectionName?: string;
+    saveToDb?: boolean;
     level?: 'info' | 'warn' | 'error' | 'debug';
     format?: 'json' | 'text';
     timestamp?: boolean;

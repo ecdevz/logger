@@ -4,17 +4,14 @@ module.exports = {
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      useESM: false,
+      isolatedModules: true
+    }],
   },
-  extensionsToTreatAsEsm: ['.ts'],
-  globals: {
-    'ts-jest': {
-      useESM: false
-    }
+  moduleNameMapping: {
+    '^chalk$': '<rootDir>/node_modules/chalk/source/index.js'
   },
-  transformIgnorePatterns: [
-    'node_modules/(?!(chalk|dayjs)/)'
-  ],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.d.ts',
@@ -23,4 +20,5 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
+  testTimeout: 10000,
 };
