@@ -1,0 +1,58 @@
+{
+  "name": "@sky7/logger",
+  "version": "1.0.0",
+  "description": "A TypeScript logger library that saves logs to MongoDB with console output support",
+  "keywords": [
+    "logger",
+    "mongodb",
+    "typescript",
+    "logging",
+    "database"
+  ],
+  "license": "MIT",
+  "author": "Eshan Chathuranga",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "clean": "rimraf lib",
+    "prepublishOnly": "npm run clean && npm run build",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "dayjs": "^1.11.18",
+    "mongoose": "^8.18.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.19.17",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.1",
+    "jest": "^29.7.0",
+    "rimraf": "^5.0.10",
+    "ts-jest": "^29.4.4",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ecdevz/logger.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ecdevz/logger/issues"
+  },
+  "homepage": "https://github.com/ecdevz/logger#readme"
+}
